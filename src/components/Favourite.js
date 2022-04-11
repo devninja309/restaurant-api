@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
@@ -32,7 +32,7 @@ const Favourite = () => {
     const [searchInput, setSearchInput] = useState("");
     const [filteredResults, setFilteredResults] = useState([]);
     const [msg, setMsg] = useState("");
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
         getFavourites();

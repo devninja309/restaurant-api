@@ -4,19 +4,19 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 
 import { useNavigate } from "react-router-dom";
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { Dropdown, DropdownButton, FormControl, InputGroup, Table } from "react-bootstrap"
+import { Dropdown, DropdownButton, InputGroup, Table } from "react-bootstrap"
 
-import Paper from '@mui/material/Paper';
-import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import DirectionsIcon from '@mui/icons-material/Directions';
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
+// import Paper from '@mui/material/Paper';
+// import InputBase from '@mui/material/InputBase';
+// import Divider from '@mui/material/Divider';
+// import IconButton from '@mui/material/IconButton';
+// import MenuIcon from '@mui/icons-material/Menu';
+// import SearchIcon from '@mui/icons-material/Search';
+// import DirectionsIcon from '@mui/icons-material/Directions';
+// import ImageList from '@mui/material/ImageList';
+// import ImageListItem from '@mui/material/ImageListItem';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
@@ -37,11 +37,52 @@ const Dashboard = () => {
   const [msg, setMsg] = useState("");
 
   const navigate = useNavigate();
+  const axiosJWT = axios.create();
 
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      const currentDate = new Date();
+      if (expire * 1000 < currentDate.getTime()) {
+        const response = await axios.get("http://localhost:5000/token");
+        config.headers.Authorization = `Bearer ${response.data.accessToken}`;
+        setToken(response.data.accessToken);
+        const decoded = jwt_decode(response.data.accessToken);
+        setName(decoded.name);
+        setExpire(decoded.exp);
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+  
   useEffect(() => {
+    const refreshToken = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/token");
+        setToken(response.data.accessToken);
+        const decoded = jwt_decode(response.data.accessToken);
+        setName(decoded.name);
+        setExpire(decoded.exp);
+      } catch (error) {
+        if (error.response) {
+          navigate("/");
+        }
+      }
+    };
+
+    const getUsers = async () => {
+      const response = await axiosJWT.get("http://localhost:5000/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUsers(response.data);
+    };
     refreshToken();
     getUsers();
-  }, [msg]);
+  }, [msg, token, navigate, axiosJWT]);
 
   const searchItems = (searchValue) => {
     setSearchInput(searchValue);
@@ -65,48 +106,11 @@ const Dashboard = () => {
     }
   };
 
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/token");
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
 
-  const axiosJWT = axios.create();
 
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `Bearer ${response.data.accessToken}`;
-        setToken(response.data.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
-  const getUsers = async () => {
-    const response = await axiosJWT.get("http://localhost:5000/users", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setUsers(response.data);
-  };
+
+
 
   const update = async (id, password) => {
     try {

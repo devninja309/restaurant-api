@@ -2,13 +2,13 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-import { DataGridpro } from '@mui/x-data-grid-pro';
+// import { DataGridpro } from '@mui/x-data-grid-pro';
 import { DataGrid } from '@mui/x-data-grid';
-import { useDemoData } from '@mui/x-data-grid-generator';
+// import { useDemoData } from '@mui/x-data-grid-generator';
 
 const Storage = () => {
 
-    const [select, setSelection] = useState([]);
+    // const [select, setSelection] = useState([]);
     const [favourites, setFavourites] = useState([]);
     const [msg, setMsg] = useState("");
     
@@ -52,7 +52,7 @@ const Storage = () => {
                 rowsPerPageOptions={[5]}
                 checkboxSelection
             />
-            <h1>{select}</h1>
+            {/* <h1>{select}</h1> */}
         </div>
 
     </div>
